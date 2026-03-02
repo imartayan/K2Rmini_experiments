@@ -105,10 +105,9 @@ def grepq_cmd(
     reads: os.PathLike,
     **params,
 ) -> str:
-    if get_param("threads", params, 8) == 1:
-        print(f"Warning: grepq is always multithreaded")
+    j = get_param("threads", params, 8)
     patterns_txt = patterns.with_suffix(".txt")
-    return [f"grepq {patterns_txt} {reads} > /dev/null"]
+    return [f"grepq -j {j} {patterns_txt} {reads} > /dev/null"]
 
 
 os.environ["PATH"] = "bin" + os.pathsep + os.environ["PATH"]

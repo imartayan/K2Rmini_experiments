@@ -1,8 +1,17 @@
 #!/bin/bash
 set -euxo pipefail
 
-if command -v "grepq" >/dev/null 2>&1; then
-    exit 0
+tool="grepq"
+repo="https://github.com/imartayan/grepq.git"
+branch="num_threads"
+
+if ! test -d ${tool}; then
+    git clone ${repo} ${tool} --branch ${branch}
 fi
 
-cargo install grepq
+cd ${tool}
+git pull
+RUSTFLAGS="-C target-cpu=native" cargo build --release
+cd ..
+mkdir -p bin
+cp ${tool}/target/release/${tool} bin
