@@ -53,15 +53,73 @@ def grep_cmd(
     reads: os.PathLike,
     **params,
 ) -> str:
-    T = get_param("threads", params, 8)
+    if get_param("threads", params, 8) > 1:
+        print(f"Warning: grep is not multithreaded")
     patterns_txt = patterns.with_suffix(".txt")
     return [f"grep -Ff {patterns_txt} -B1 {reads} > /dev/null"]
+
+
+def ripgrep_cmd(
+    patterns: os.PathLike,
+    reads: os.PathLike,
+    **params,
+) -> str:
+    j = get_param("threads", params, 8)
+    patterns_txt = patterns.with_suffix(".txt")
+    return [f"rg -j {j} -Ff {patterns_txt} -B1 {reads} > /dev/null"]
+
+
+def hyperscan_cmd(
+    patterns: os.PathLike,
+    reads: os.PathLike,
+    **params,
+) -> str:
+    if get_param("threads", params, 8) > 1:
+        print(f"Warning: hsgrep is not multithreaded")
+    patterns_txt = patterns.with_suffix(".txt")
+    return [f"hsgrep {patterns_txt} {reads} > /dev/null"]
+
+
+def seqkit_cmd(
+    patterns: os.PathLike,
+    reads: os.PathLike,
+    **params,
+) -> str:
+    j = get_param("threads", params, 8)
+    patterns_txt = patterns.with_suffix(".txt")
+    return [f"seqkit grep -j {j} -s -f {patterns_txt} {reads} > /dev/null"]
+
+
+def fqgrep_cmd(
+    patterns: os.PathLike,
+    reads: os.PathLike,
+    **params,
+) -> str:
+    t = get_param("threads", params, 8)
+    patterns_txt = patterns.with_suffix(".txt")
+    return [f"fqgrep -t {t} -Ff {patterns_txt} {reads} > /dev/null"]
+
+
+def grepq_cmd(
+    patterns: os.PathLike,
+    reads: os.PathLike,
+    **params,
+) -> str:
+    if get_param("threads", params, 8) == 1:
+        print(f"Warning: grepq is always multithreaded")
+    patterns_txt = patterns.with_suffix(".txt")
+    return [f"grepq {patterns_txt} {reads} > /dev/null"]
 
 
 os.environ["PATH"] = "bin" + os.pathsep + os.environ["PATH"]
 
 K2RMINI = Tool("K2Rmini", k2rmini_cmd)
 BTS = Tool("BTS", bts_cmd)
-GREP = Tool("grep", grep_cmd)
+GREP = Tool("Grep", grep_cmd)
+RIPGREP = Tool("Ripgrep", ripgrep_cmd)
+HYPERSCAN = Tool("Hyperscan", hyperscan_cmd)
+SEQKIT = Tool("Seqkit", seqkit_cmd)
+FQGREP = Tool("fqgrep", fqgrep_cmd)
+GREPQ = Tool("grepq", grepq_cmd)
 
-TOOLS = [K2RMINI, BTS, GREP]
+TOOLS = [K2RMINI, BTS, GREP, RIPGREP, HYPERSCAN, SEQKIT, FQGREP, GREPQ]

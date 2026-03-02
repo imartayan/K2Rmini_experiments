@@ -26,4 +26,4 @@ else
 fi
 
 mkdir -p bin
-gcc -o bin/hs_grep scan/simplegrep.c $(pkg-config --cflags --libs libhs)
+gcc -o bin/hsgrep scan/simplegrep.c $(pkg-config --cflags --libs libhs)
