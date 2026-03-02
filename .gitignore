@@ -1,4 +1,12 @@
 bin
+log
+patterns
+
 K2Rmini
 back_to_sequences
+
+__pycache__
+*.pyc
+
+*.fa
 .DS_Store
