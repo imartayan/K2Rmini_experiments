@@ -14,5 +14,9 @@ __pycache__
 *.fasta
 *.fq
 *.fastq
+*.pdf
+*.png
+*.svg
+
 nohup.out
 .DS_Store
