@@ -10,4 +10,8 @@ __pycache__
 *.pyc
 
 *.fa
+*.fasta
+*.fq
+*.fastq
+nohup.out
 .DS_Store
