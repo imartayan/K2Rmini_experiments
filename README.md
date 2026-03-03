@@ -4,6 +4,8 @@
 
 Make sure to install the latest Rust version with [rustup](https://rustup.rs/).
 
+You'll also need a Python setup with `pandas`, `matplotlib` and `seaborn` to make the plots.
+
 Other tools may require additional development librairies depending on your setup.
 
 ### Debian-based distributions
@@ -27,7 +29,7 @@ You can adjust the number of repetitions (`-R`), timeout for each command (`-T`)
 A detailed description of each flag is available using `-h`.
 
 ```sh
-python experiments.py -r <READS> -R 5 -T 300 -j 8
+python3 experiments.py -r <READS> -R 5 -T 300 -j 8
 ```
 
 This script will run multiple tools and store the results of each run in the `log` folder.
@@ -39,5 +41,5 @@ On some results are available in the `log` folder, you can generate plots compar
 You can change the output format (`-f`) and the directories used for the logs (`-l`) and plots (`-p`).
 
 ```sh
-python plot.py -f pdf
+python3 plot.py -f pdf
 ```
