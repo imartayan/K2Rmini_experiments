@@ -63,7 +63,7 @@ for log_file in log_dir.iterdir():
         continue
     with open(log_file) as f:
         log = json.load(f)
-        if log["tool"] in TOOL_NAMES and log["time"] > 0:
+        if log["tool"] in TOOL_NAMES and log["time"] > 0.01:
             LOGS.append(log)
 
 if not LOGS:
