@@ -54,7 +54,8 @@ def grep_cmd(
     **params,
 ) -> str:
     if get_param("threads", params, 8) > 1:
-        print(f"Warning: grep is not multithreaded")
+        print(f"Skipping grep since it's not multithreaded")
+        return []
     patterns_txt = patterns.with_suffix(".txt")
     return [f"grep -Ff {patterns_txt} -B1 {reads} > /dev/null"]
 
@@ -75,7 +76,8 @@ def hyperscan_cmd(
     **params,
 ) -> str:
     if get_param("threads", params, 8) > 1:
-        print(f"Warning: hsgrep is not multithreaded")
+        print(f"Skipping hsgrep since it's not multithreaded")
+        return []
     patterns_txt = patterns.with_suffix(".txt")
     return [f"hsgrep {patterns_txt} {reads} > /dev/null"]
 
