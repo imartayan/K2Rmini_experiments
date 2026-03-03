@@ -13,7 +13,6 @@ def run_tool(tool, timed_out, patterns, reads, **params):
     if not timed_out[tool.name]:
         time = tool.run(patterns, reads, **params)
         timed_out[tool.name] |= time == float("inf")
-        sys.stderr.write("\n")
 
 
 def run(args):
@@ -26,7 +25,8 @@ def run(args):
     k = args.kmer_size
     m = args.minimizer_size
 
-    timed_out = {tool.name: False for tool in TOOLS}
+    ref_timed_out = {tool.name: False for tool in TOOLS}
+    random_timed_out = {tool.name: False for tool in TOOLS}
     max_workers = max(args.max_workers // args.threads, 1)
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = []
@@ -49,7 +49,7 @@ def run(args):
                         executor.submit(
                             run_tool,
                             tool,
-                            timed_out,
+                            ref_timed_out,
                             ref_fasta,
                             reads,
                             repeat=args.repeat,
@@ -68,7 +68,7 @@ def run(args):
                 else:
                     run_tool(
                         tool,
-                        timed_out,
+                        ref_timed_out,
                         ref_fasta,
                         reads,
                         repeat=args.repeat,
@@ -88,7 +88,7 @@ def run(args):
                         executor.submit(
                             run_tool,
                             tool,
-                            timed_out,
+                            random_timed_out,
                             random_fasta,
                             reads,
                             repeat=args.repeat,
@@ -107,7 +107,7 @@ def run(args):
                 else:
                     run_tool(
                         tool,
-                        timed_out,
+                        random_timed_out,
                         random_fasta,
                         reads,
                         repeat=args.repeat,
@@ -140,7 +140,7 @@ if __name__ == "__main__":
         help="number of patterns to run with [powers of 2]",
         nargs="+",
         type=int,
-        default=[2**p for p in range(23)],
+        default=[2**p for p in range(25)],
     )
     parser.add_argument(
         "-R",
