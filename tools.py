@@ -1,4 +1,5 @@
 import os
+import sys
 import typing
 
 from tool import Tool, basename
@@ -10,7 +11,7 @@ def get_param(
     if key in params:
         return params[key]
     elif default is not None:
-        print(f"Using {key}={default} by default")
+        sys.stderr.write(f"Using {key}={default} by default\n")
         return default
     else:
         raise Exception(f"{key} is missing from params")
@@ -54,7 +55,7 @@ def grep_cmd(
     **params,
 ) -> str:
     if get_param("threads", params, 8) > 1:
-        print(f"Skipping grep since it's not multithreaded")
+        sys.stderr.write(f"Skipping grep since it's not multithreaded\n")
         return []
     patterns_txt = patterns.with_suffix(".txt")
     return [f"grep -Ff {patterns_txt} -B1 {reads} | wc -l; test $? -le 1"]
@@ -78,7 +79,7 @@ def hyperscan_cmd(
     **params,
 ) -> str:
     if get_param("threads", params, 8) > 1:
-        print(f"Skipping hsgrep since it's not multithreaded")
+        sys.stderr.write(f"Skipping hsgrep since it's not multithreaded\n")
         return []
     patterns_txt = patterns.with_suffix(".txt")
     return [f"hsgrep {patterns_txt} {reads} > /dev/null"]

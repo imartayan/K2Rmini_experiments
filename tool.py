@@ -50,7 +50,7 @@ def execute(
         return out, err
     except subprocess.SubprocessError as proc:
         if isinstance(proc, subprocess.TimeoutExpired):
-            print(f"timed out after {timeout}s")
+            sys.stderr.write(f"timed out after {timeout}s\n")
             return None, None
         out, err = proc.stdout, proc.stderr
         if isinstance(out, bytes):
@@ -98,13 +98,14 @@ class Tool:
         reads: os.PathLike,
         repeat: int = 1,
         timeout: float | None = None,
+        silent: bool = False,
         overwrite_log: bool = False,
         log_dir: os.PathLike = LOG_DIR,
         **params,
     ) -> float:
         log_file = self.log_file(patterns, reads, log_dir=log_dir, **params)
         if log_file.exists() and not overwrite_log:
-            print(f"Log already exists: {log_file}")
+            sys.stderr.write(f"Log already exists: {log_file}\n")
             return 0
 
         commands = self.cmd(patterns, reads, **params)  # adapt args
@@ -112,13 +113,15 @@ class Tool:
         for _ in range(repeat):
             for command in commands:
                 sys.stderr.write(f"$ {command}\n")
-                out, err = execute(f"{GNU_TIME} -f '%e %M' {command}", timeout=timeout)
+                out, err = execute(
+                    f"{GNU_TIME} -f '%e %M' {command}", timeout=timeout, silent=silent
+                )
                 try:
                     time, memory = list(map(float, err.splitlines()[-1].split()))
                     total_time += time
                     total_memory = max(total_memory, memory)
                 except Exception:
-                    print(f"{self.name} failed during execution")
+                    sys.stderr.write(f"{self.name} failed during execution\n")
                     return float("inf")
         time = total_time / repeat
         memory = total_memory / repeat
