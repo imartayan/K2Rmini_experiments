@@ -36,13 +36,13 @@ def bts_cmd(
     k = get_param("k", params, 31)
     t = get_param("threads", params, 8)
     threshold = get_param("threshold", params, 0.8)
-    if isinstance(threshold, float):
+    if threshold < 1:
         m = round(threshold * 100)
         return [
             f"back_to_sequences -k {k} -m {m} -t {t} --in-kmers {patterns} --in-sequences {reads} --out-sequences /dev/null"
         ]
     else:
-        m = 100
+        m = round(threshold)
         return [
             f"back_to_sequences -k {k} -m {m} -t {t} --in-kmers {patterns} --in-sequences {reads} --out-sequences /dev/null"
         ]
@@ -67,7 +67,7 @@ def ripgrep_cmd(
 ) -> str:
     j = get_param("threads", params, 8)
     patterns_txt = patterns.with_suffix(".txt")
-    return [f"rg -j {j} -Ff {patterns_txt} -B1 {reads} > /dev/null"]
+    return [f"rg -j {j} --no-unicode -Ff {patterns_txt} -B1 {reads} > /dev/null"]
 
 
 def hyperscan_cmd(
@@ -89,7 +89,7 @@ def seqkit_cmd(
 ) -> str:
     j = get_param("threads", params, 8)
     patterns_txt = patterns.with_suffix(".txt")
-    return [f"seqkit grep -j {j} -s -f {patterns_txt} {reads} > /dev/null"]
+    return [f"seqkit grep -j {j} -sP -f {patterns_txt} {reads} > /dev/null"]
 
 
 def fqgrep_cmd(
@@ -109,7 +109,7 @@ def grepq_cmd(
 ) -> str:
     j = get_param("threads", params, 8)
     patterns_txt = patterns.with_suffix(".txt")
-    return [f"grepq -j {j} {patterns_txt} {reads} > /dev/null"]
+    return [f"grepq -j {j} -F {patterns_txt} {reads} > /dev/null"]
 
 
 os.environ["PATH"] = "bin" + os.pathsep + os.environ["PATH"]
