@@ -15,6 +15,7 @@ def run(args):
     k = args.kmer_size
     m = args.minimizer_size
 
+    timeout = {tool.name: False for tool in TOOLS}
     for n in args.num_patterns:
         ref_fasta = patterns_dir / f"{basename(reads)}_{n}.fa"
         ref_txt = ref_fasta.with_suffix(".txt")
@@ -29,36 +30,40 @@ def run(args):
             silent=True,
         )
         for tool in TOOLS:
-            tool.run(
-                ref_fasta,
-                reads,
-                repeat=args.repeat,
-                timeout=args.timeout,
-                overwrite_log=args.overwrite_logs,
-                log_dir=log_dir,
-                num_patterns=n,
-                random=False,
-                threads=args.threads,
-                threshold=args.threshold,
-                k=k,
-                m=m,
-            )
-            print()
-            tool.run(
-                random_fasta,
-                reads,
-                repeat=args.repeat,
-                timeout=args.timeout,
-                overwrite_log=args.overwrite_logs,
-                log_dir=log_dir,
-                num_patterns=n,
-                random=True,
-                threads=args.threads,
-                threshold=args.threshold,
-                k=k,
-                m=m,
-            )
-            print()
+            if not timeout[tool.name]:
+                time = tool.run(
+                    ref_fasta,
+                    reads,
+                    repeat=args.repeat,
+                    timeout=args.timeout,
+                    overwrite_log=args.overwrite_logs,
+                    log_dir=log_dir,
+                    num_patterns=n,
+                    random=False,
+                    threads=args.threads,
+                    threshold=args.threshold,
+                    k=k,
+                    m=m,
+                )
+                timeout[tool.name] |= time == float("inf")
+                print()
+            if not timeout[tool.name]:
+                time = tool.run(
+                    random_fasta,
+                    reads,
+                    repeat=args.repeat,
+                    timeout=args.timeout,
+                    overwrite_log=args.overwrite_logs,
+                    log_dir=log_dir,
+                    num_patterns=n,
+                    random=True,
+                    threads=args.threads,
+                    threshold=args.threshold,
+                    k=k,
+                    m=m,
+                )
+                timeout[tool.name] |= time == float("inf")
+                print()
 
 
 if __name__ == "__main__":

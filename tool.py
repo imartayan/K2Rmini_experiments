@@ -101,11 +101,11 @@ class Tool:
         overwrite_log: bool = False,
         log_dir: os.PathLike = LOG_DIR,
         **params,
-    ) -> typing.NoReturn:
+    ) -> float:
         log_file = self.log_file(patterns, reads, log_dir=log_dir, **params)
         if log_file.exists() and not overwrite_log:
             print(f"Log already exists: {log_file}")
-            return
+            return 0
 
         commands = self.cmd(patterns, reads, **params)  # adapt args
         total_time, total_memory = 0, 0
@@ -119,7 +119,7 @@ class Tool:
                     total_memory = max(total_memory, memory)
                 except Exception:
                     print(f"{self.name} failed during execution")
-                    return
+                    return float("inf")
         time = total_time / repeat
         memory = total_memory / repeat
 
@@ -135,3 +135,4 @@ class Tool:
             memory=memory,
             **params,
         )
+        return time

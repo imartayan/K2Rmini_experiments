@@ -121,4 +121,4 @@ SEQKIT = Tool("Seqkit", seqkit_cmd)
 FQGREP = Tool("fqgrep", fqgrep_cmd)
 GREPQ = Tool("grepq", grepq_cmd)
 
-TOOLS = [K2RMINI, BTS, GREP, RIPGREP, HYPERSCAN, SEQKIT, FQGREP, GREPQ]
+TOOLS = [GREP, RIPGREP, HYPERSCAN, SEQKIT, FQGREP, GREPQ, BTS, K2RMINI]
