@@ -26,7 +26,7 @@ def run(args):
             silent=True,
         )
         execute(
-            f"pattern_extract -k {k} -n {n} -r {reads} -f {random_fasta} -t {random_txt}",
+            f"pattern_extract -k {k} -n {n} -f {random_fasta} -t {random_txt}",
             silent=True,
         )
         for tool in TOOLS:
