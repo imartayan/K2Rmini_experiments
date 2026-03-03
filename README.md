@@ -11,7 +11,7 @@ Other tools may require additional development librairies depending on your setu
 ### Debian-based distributions
 
 ```sh
-sudo apt install libzstd-dev libhyperscan5 libhyperscan-dev
+sudo apt install -y libzstd-dev libhyperscan5 libhyperscan-dev python3-pandas python3-matplotlib python3-seaborn
 ```
 
 ### macOS
