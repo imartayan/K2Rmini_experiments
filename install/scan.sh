@@ -26,4 +26,4 @@ else
 fi
 
 mkdir -p bin
-gcc -o bin/hsgrep scan/simplegrep.c $(pkg-config --cflags --libs libhs)
+gcc scan/simplegrep.c -o bin/hsgrep -O3 -march=native $(pkg-config --cflags --libs libhs)
