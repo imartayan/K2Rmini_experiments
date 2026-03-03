@@ -57,7 +57,7 @@ def grep_cmd(
         print(f"Skipping grep since it's not multithreaded")
         return []
     patterns_txt = patterns.with_suffix(".txt")
-    return [f"grep -Ff {patterns_txt} -B1 {reads} > /dev/null"]
+    return [f"grep -Ff {patterns_txt} -B1 {reads} | wc -l"]
 
 
 def ripgrep_cmd(
