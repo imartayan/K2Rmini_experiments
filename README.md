@@ -20,6 +20,16 @@ sudo apt install libzstd-dev libhyperscan5 libhyperscan-dev
 brew install vectorscan
 ```
 
+## Installation
+
+You can install all the tools using
+
+```sh
+bash install.sh
+```
+
+This will store all the binaries in the `bin` folder.
+
 ## Experiments
 
 You can run the experiments on your desired set of reads (in FASTQ format).
