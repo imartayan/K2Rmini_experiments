@@ -57,7 +57,7 @@ def grep_cmd(
         print(f"Skipping grep since it's not multithreaded")
         return []
     patterns_txt = patterns.with_suffix(".txt")
-    return [f"grep -Ff {patterns_txt} -B1 {reads} | wc -l"]
+    return [f"grep -Ff {patterns_txt} -B1 {reads} | wc -l; test $? -le 1"]
 
 
 def ripgrep_cmd(
@@ -67,7 +67,9 @@ def ripgrep_cmd(
 ) -> str:
     j = get_param("threads", params, 8)
     patterns_txt = patterns.with_suffix(".txt")
-    return [f"rg -j {j} --no-unicode -Ff {patterns_txt} -B1 {reads} > /dev/null"]
+    return [
+        f"rg -j {j} --no-unicode -Ff {patterns_txt} -B1 {reads} > /dev/null; test $? -le 1"
+    ]
 
 
 def hyperscan_cmd(
@@ -99,7 +101,7 @@ def fqgrep_cmd(
 ) -> str:
     t = get_param("threads", params, 8)
     patterns_txt = patterns.with_suffix(".txt")
-    return [f"fqgrep -t {t} -Ff {patterns_txt} {reads} > /dev/null"]
+    return [f"fqgrep -t {t} -Ff {patterns_txt} {reads} > /dev/null; test $? -le 1"]
 
 
 def grepq_cmd(
