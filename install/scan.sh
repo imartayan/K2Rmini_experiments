@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euxo pipefail
+set -ux
 
 # https://stackoverflow.com/questions/18215973/how-to-check-if-running-as-root-in-a-bash-script
 sudo="sudo"
