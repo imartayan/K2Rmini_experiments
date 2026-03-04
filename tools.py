@@ -100,6 +100,16 @@ def bts_cmd(
         ]
 
 
+def sbwt_cmd(
+    patterns: os.PathLike,
+    reads: os.PathLike,
+    **params,
+) -> str:
+    k = get_param("k", params, 31)
+    t = get_param("threads", params, 8)
+    return [f"sbwt_bench -k {k} -t {t} -p {patterns} -r {reads} > /dev/null"]
+
+
 def grep_cmd(
     patterns: os.PathLike,
     reads: os.PathLike,
@@ -172,6 +182,7 @@ K2RMINI = Tool("K2Rmini", k2rmini_cmd)
 DEACON = Tool("Deacon", deacon_cmd)
 CLEANIFIER = Tool("Cleanifier", cleanifier_cmd)
 BTS = Tool("BTS", bts_cmd)
+SBWT = Tool("SBWT", sbwt_cmd)
 GREP = Tool("Grep", grep_cmd)
 RIPGREP = Tool("Ripgrep", ripgrep_cmd)
 HYPERSCAN = Tool("Hyperscan", hyperscan_cmd)
@@ -190,4 +201,5 @@ TOOLS = [
     BTS,
     DEACON,
     K2RMINI,
+    SBWT,
 ]
