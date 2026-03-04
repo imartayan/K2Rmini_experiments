@@ -1,16 +1,20 @@
 use clap::Parser as ClapParser;
-use gxhash::GxBuildHasher;
 use helicase::input::*;
 use helicase::*;
 use nohash_hasher::BuildNoHashHasher;
+
 use packed_seq::{AsciiSeqVec, SeqVec};
+use seq_hash::{KmerHasher, NtHasher, packed_seq};
 
 use std::collections::HashSet;
 use std::fs::{File, exists};
-use std::hash::BuildHasher;
 use std::io::{BufWriter, Write};
 
-const CONFIG: Config = ParserOptions::default().ignore_headers().config();
+const CONFIG: Config = ParserOptions::default()
+    .ignore_headers()
+    .dna_packed()
+    .and_dna_string()
+    .config();
 
 #[derive(ClapParser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -24,7 +28,7 @@ struct Args {
     /// Number of k-mers to extract
     #[arg(short, long)]
     num_kmers: usize,
-    /// Path to the fasta output (one record per k-mer)
+    /// Path to the fasta output
     #[arg(short, long)]
     fasta: Option<String>,
     /// Path to the text output (one line per k-mer)
@@ -62,42 +66,55 @@ fn main() {
         let mut parser =
             FastxParser::<CONFIG>::from_file(&reference_path).expect("Cannot open reference file");
 
-        let hasher = GxBuildHasher::default();
+        let hasher = NtHasher::<false>::new(args.k);
+        let mut hashes = Vec::with_capacity(1 << 15);
         let mut seen =
             HashSet::with_capacity_and_hasher(args.num_kmers * 2, BuildNoHashHasher::<u64>::new());
 
         while let Some(_) = parser.next() {
             let seq = parser.get_dna_string();
-            for kmer in seq.windows(args.k) {
-                let hash = hasher.hash_one(kmer);
+            let packed = parser.get_packed_seq();
+            if seq.len() < args.k {
+                continue;
+            }
+
+            hashes.clear();
+            hasher.hash_kmers_simd(packed, 1).collect_into(&mut hashes);
+
+            let mut stop = args.k - 1;
+            for (kmer, &hash) in seq.windows(args.k).zip(hashes.iter()) {
+                stop += 1;
                 if seen.insert(hash) {
-                    if let Some(ref mut writer) = fasta_writer {
-                        writer.write_all(b">\n").unwrap();
-                        writer.write_all(kmer).unwrap();
-                        writer.write_all(b"\n").unwrap();
-                    }
                     if let Some(ref mut writer) = text_writer {
                         writer.write_all(kmer).unwrap();
                         writer.write_all(b"\n").unwrap();
                     }
                     if seen.len() == args.num_kmers {
-                        return;
+                        break;
                     }
                 }
+            }
+            if let Some(ref mut writer) = fasta_writer {
+                writer.write_all(b">\n").unwrap();
+                writer.write_all(&seq[..stop]).unwrap();
+                writer.write_all(b"\n").unwrap();
+            }
+            if seen.len() == args.num_kmers {
+                break;
             }
         }
     } else {
         let seq = AsciiSeqVec::random(args.num_kmers + args.k - 1).into_raw();
         for kmer in seq.windows(args.k) {
-            if let Some(ref mut writer) = fasta_writer {
-                writer.write_all(b">\n").unwrap();
-                writer.write_all(kmer).unwrap();
-                writer.write_all(b"\n").unwrap();
-            }
             if let Some(ref mut writer) = text_writer {
                 writer.write_all(kmer).unwrap();
                 writer.write_all(b"\n").unwrap();
             }
+        }
+        if let Some(ref mut writer) = fasta_writer {
+            writer.write_all(b">\n").unwrap();
+            writer.write_all(&seq).unwrap();
+            writer.write_all(b"\n").unwrap();
         }
     }
 }
