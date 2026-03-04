@@ -29,6 +29,32 @@ def k2rmini_cmd(
     return [f"K2Rmini -k {k} -m {m} -t {t} -T {T} -p {patterns} {reads} -o /dev/null"]
 
 
+def deacon_cmd(
+    patterns: os.PathLike,
+    reads: os.PathLike,
+    **params,
+) -> str:
+    k = get_param("k", params, 31)
+    m = get_param("m", params, 21)
+    t = get_param("threads", params, 8)
+    threshold = get_param("threshold", params, 0.8)
+    w = k - m + 1
+    k = m
+    patterns_deacon = patterns.with_suffix(".deacon")
+    if threshold < 1:
+        r = threshold / w
+        return [
+            f"deacon index build -k {k} -w {w} -t {t} -q {patterns} -o {patterns_deacon}",
+            f"deacon filter -r {r} -t {t} -f -q {patterns_deacon} {reads} -o /dev/null",
+        ]
+    else:
+        a = threshold // w
+        return [
+            f"deacon index build -k {k} -w {w} -t {t} -q {patterns} -o {patterns_deacon}",
+            f"deacon filter -a {a} -t {t} -f -q {patterns_deacon} {reads} -o /dev/null",
+        ]
+
+
 def bts_cmd(
     patterns: os.PathLike,
     reads: os.PathLike,
@@ -118,6 +144,7 @@ def grepq_cmd(
 os.environ["PATH"] = "bin" + os.pathsep + os.environ["PATH"]
 
 K2RMINI = Tool("K2Rmini", k2rmini_cmd)
+DEACON = Tool("Deacon", deacon_cmd)
 BTS = Tool("BTS", bts_cmd)
 GREP = Tool("Grep", grep_cmd)
 RIPGREP = Tool("Ripgrep", ripgrep_cmd)
@@ -126,4 +153,4 @@ SEQKIT = Tool("Seqkit", seqkit_cmd)
 FQGREP = Tool("fqgrep", fqgrep_cmd)
 GREPQ = Tool("grepq", grepq_cmd)
 
-TOOLS = [GREP, RIPGREP, HYPERSCAN, SEQKIT, FQGREP, GREPQ, BTS, K2RMINI]
+TOOLS = [GREP, RIPGREP, HYPERSCAN, SEQKIT, FQGREP, GREPQ, BTS, DEACON, K2RMINI]

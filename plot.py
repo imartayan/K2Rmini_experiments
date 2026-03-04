@@ -11,6 +11,7 @@ from tools import TOOLS
 from tool import basename
 
 TOOL_NAMES = [tool.name for tool in TOOLS]
+# https://github.com/ngregorich/plot_color_palettes/blob/main/README.md
 PALETTE = {
     k: v
     for k, v in zip(
@@ -19,10 +20,11 @@ PALETTE = {
             "#E15759",
             "#F28E2B",
             "#EDC948",
+            "#9C755F",
             "#59A14F",
             "#76B7B2",
-            "#FF9DA7",
             "#B07AA1",
+            "#FF9DA7",
             "#4E79A7",
         ],
     )
