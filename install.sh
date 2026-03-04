@@ -3,6 +3,7 @@ set -euxo pipefail
 
 bash install/pattern.sh
 bash install/ggcat.sh
+bash install/sbwt.sh
 bash install/k2rmini.sh
 bash install/deacon.sh
 bash install/bts.sh
