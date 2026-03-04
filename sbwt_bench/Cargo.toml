@@ -1,0 +1,18 @@
+[package]
+name = "sbwt_bench"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+needletail = "0.6"
+sbwt = "0.4.1"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+
+[profile.dev]
+opt-level = 1
+lto = "thin"

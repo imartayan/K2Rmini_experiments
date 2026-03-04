@@ -26,6 +26,7 @@ PALETTE = {
             "#B07AA1",
             "#FF9DA7",
             "#4E79A7",
+            "#BAB0AC",
         ],
     )
 }
