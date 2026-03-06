@@ -25,8 +25,14 @@ def run(args):
     k = args.kmer_size
     m = args.minimizer_size
 
-    ref_timed_out = {tool.name: False for tool in TOOLS}
-    random_timed_out = {tool.name: False for tool in TOOLS}
+    selected_tool_names = [name.lower() for name in args.select_tools]
+    selected_tools = [
+        tool for tool in TOOLS if tool.name.lower() in selected_tool_names
+    ]
+    selected_tool_names = [tool.name for tool in selected_tools]
+
+    ref_timed_out = {name: False for name in selected_tool_names}
+    random_timed_out = {name: False for name in selected_tool_names}
     max_workers = max(args.max_workers // args.threads, 1)
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = []
@@ -43,7 +49,7 @@ def run(args):
                 f"pattern_extract -k {k} -n {n} -f {random_fasta} -t {random_txt}",
                 silent=True,
             )
-            for tool in TOOLS:
+            for tool in selected_tools:
                 if max_workers > 1:
                     futures.append(
                         executor.submit(
@@ -82,7 +88,7 @@ def run(args):
                         k=k,
                         m=m,
                     )
-            for tool in TOOLS:
+            for tool in selected_tools:
                 if max_workers > 1:
                     futures.append(
                         executor.submit(
@@ -141,6 +147,14 @@ if __name__ == "__main__":
         nargs="+",
         type=int,
         default=[2**p for p in range(25)],
+    )
+    parser.add_argument(
+        "-s",
+        "--select_tools",
+        help="select tools to run [all]",
+        nargs="+",
+        type=str,
+        default=[tool.name for tool in TOOLS],
     )
     parser.add_argument(
         "-R",

@@ -39,6 +39,14 @@ parser.add_argument(
     default="pdf",
 )
 parser.add_argument(
+    "-s",
+    "--select_tools",
+    help="select tools to plot [all]",
+    nargs="+",
+    type=str,
+    default=TOOL_NAMES,
+)
+parser.add_argument(
     "-l",
     "--log_dir",
     help="log directory ['log']",
@@ -48,7 +56,7 @@ parser.add_argument(
 parser.add_argument(
     "-p",
     "--plots_dir",
-    help="pattern directory ['plots']",
+    help="plot directory ['plots']",
     type=str,
     default="plots",
 )
@@ -58,6 +66,9 @@ log_dir = pathlib.Path(args.log_dir)
 plots_dir = pathlib.Path(args.plots_dir)
 plots_dir.mkdir(exist_ok=True)
 
+selected_tool_names = [name.lower() for name in args.select_tools]
+selected_tools = [tool for tool in TOOLS if tool.name.lower() in selected_tool_names]
+selected_tool_names = [tool.name for tool in selected_tools]
 
 LOGS = []
 for log_file in log_dir.iterdir():
@@ -65,7 +76,7 @@ for log_file in log_dir.iterdir():
         continue
     with open(log_file) as f:
         log = json.load(f)
-        if log["tool"] in TOOL_NAMES and log["time"] > 0.01:
+        if log["tool"] in selected_tool_names and log["time"] > 0.01:
             LOGS.append(log)
 
 if not LOGS:
@@ -84,6 +95,8 @@ DATA = DATA.sort_values(
 KS = DATA["k"].unique()
 READS = DATA["reads"].unique()
 THREADS = DATA["threads"].unique()
+NAMES = DATA["tool"].unique()
+selected_tool_names = [name for name in selected_tool_names if name in NAMES]
 
 sns.set_context("talk")
 
@@ -101,7 +114,7 @@ for k, reads, threads in itertools.product(KS, READS, THREADS):
         x="num_patterns",
         y="time",
         hue="tool",
-        hue_order=TOOL_NAMES,
+        hue_order=selected_tool_names,
         palette=PALETTE,
         style="random",
         markers=True,
@@ -116,9 +129,9 @@ for k, reads, threads in itertools.product(KS, READS, THREADS):
 
     handles, labels = plt.gca().get_legend_handles_labels()
     labels[0] = "Tool"
-    labels[len(TOOL_NAMES) + 1] = ""
-    labels[len(TOOL_NAMES) + 2] = "positive"
-    labels[len(TOOL_NAMES) + 3] = "negative"
+    labels[len(selected_tool_names) + 1] = ""
+    labels[len(selected_tool_names) + 2] = "positive"
+    labels[len(selected_tool_names) + 3] = "negative"
     plt.legend(
         handles,
         labels,
