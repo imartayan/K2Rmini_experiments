@@ -4,20 +4,24 @@
 
 Make sure to install the latest Rust version with [rustup](https://rustup.rs/).
 
-You'll also need a Python setup with `pandas`, `matplotlib` and `seaborn` to make the plots.
-
-Other tools may require additional development librairies depending on your setup.
+You'll also need a Python setup with `pandas`, `matplotlib` and `seaborn` to make the plots, and different development librairies depending on your OS.
 
 ### Debian-based distributions
 
 ```sh
-sudo apt install -y libzstd-dev libhyperscan5 libhyperscan-dev python3-pandas python3-matplotlib python3-seaborn
+sudo apt install -y libsqlite3-dev libzstd-dev libhyperscan5 libhyperscan-dev python3-pandas python3-matplotlib python3-seaborn
+```
+
+### Fedora-based distributions
+
+```sh
+sudo dnf install libsq3-devel libzstd-devel hyperscan-devel
 ```
 
 ### macOS
 
 ```sh
-brew install vectorscan
+brew install zstd vectorscan
 ```
 
 ## Installation
