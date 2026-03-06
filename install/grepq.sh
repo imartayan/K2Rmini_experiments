@@ -3,7 +3,7 @@ set -euxo pipefail
 
 tool="grepq"
 repo="https://github.com/imartayan/grepq.git"
-branch="num_threads"
+branch="fix"
 
 if ! test -d ${tool}; then
     git clone ${repo} ${tool} --branch ${branch}
