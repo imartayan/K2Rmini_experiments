@@ -15,7 +15,7 @@ sudo apt install -y libsqlite3-dev libzstd-dev libhyperscan5 libhyperscan-dev pi
 ### Fedora-based distributions
 
 ```sh
-sudo dnf install libsq3-devel libzstd-devel hyperscan-devel pipx
+sudo dnf -y install libsq3-devel libzstd-devel hyperscan-devel pipx python3-pandas python3-matplotlib python3-seaborn
 ```
 
 ### macOS
