@@ -9,19 +9,19 @@ You'll also need a Python setup with `pandas`, `matplotlib` and `seaborn` to mak
 ### Debian-based distributions
 
 ```sh
-sudo apt install -y libsqlite3-dev libzstd-dev libhyperscan5 libhyperscan-dev python3-pandas python3-matplotlib python3-seaborn
+sudo apt install -y libsqlite3-dev libzstd-dev libhyperscan5 libhyperscan-dev pipx python3-pandas python3-matplotlib python3-seaborn
 ```
 
 ### Fedora-based distributions
 
 ```sh
-sudo dnf install libsq3-devel libzstd-devel hyperscan-devel
+sudo dnf install libsq3-devel libzstd-devel hyperscan-devel pipx
 ```
 
 ### macOS
 
 ```sh
-brew install zstd vectorscan
+brew install zstd vectorscan pipx
 ```
 
 ## Installation

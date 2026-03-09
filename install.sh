@@ -9,4 +9,5 @@ bash install/ripgrep.sh
 bash install/seqkit.sh
 bash install/fqgrep.sh
 bash install/grepq.sh
+bash install/cleanifier.sh
 bash install/scan.sh

@@ -1,3 +1,4 @@
+import math
 import os
 import sys
 import typing
@@ -52,6 +53,30 @@ def deacon_cmd(
         return [
             f"deacon index build -k {k} -w {w} -t {t} -q {patterns} -o {patterns_deacon}",
             f"deacon filter -a {a} -t {t} -f -q {patterns_deacon} {reads} -o /dev/null",
+        ]
+
+
+def cleanifier_cmd(
+    patterns: os.PathLike,
+    reads: os.PathLike,
+    **params,
+) -> str:
+    k = get_param("k", params, 31)
+    n = get_param("num_patterns", params, 0)  # requires nb of kmers in advance
+    threshold = get_param("threshold", params, 0.8)
+    T = get_param("threads", params, 8)
+    threads_read = math.ceil(T / 3)
+    threads_split = max(T - threads_read, 1)
+    patterns_cleanifier = patterns.with_suffix(".cleanifier")
+    if threshold < 1:
+        return [
+            f"cleanifier index -k {k} -n {n} --threads-read {threads_read} --threads-split {threads_split} --files {patterns} --index {patterns_cleanifier}",
+            f"cleanifier filter --threshold {threshold} -T {T} --index {patterns_cleanifier} --fastq {reads} --count",
+        ]
+    else:
+        return [
+            f"cleanifier index -k {k} -n {n} --threads-read {threads_read} --threads-split {threads_split} --files {patterns} --index {patterns_cleanifier}",
+            f"cleanifier filter -T {T} --index {patterns_cleanifier} --fastq {reads} --count",
         ]
 
 
@@ -145,6 +170,7 @@ os.environ["PATH"] = "bin" + os.pathsep + os.environ["PATH"]
 
 K2RMINI = Tool("K2Rmini", k2rmini_cmd)
 DEACON = Tool("Deacon", deacon_cmd)
+CLEANIFIER = Tool("Cleanifier", cleanifier_cmd)
 BTS = Tool("BTS", bts_cmd)
 GREP = Tool("Grep", grep_cmd)
 RIPGREP = Tool("Ripgrep", ripgrep_cmd)
@@ -153,4 +179,15 @@ SEQKIT = Tool("Seqkit", seqkit_cmd)
 FQGREP = Tool("fqgrep", fqgrep_cmd)
 GREPQ = Tool("grepq", grepq_cmd)
 
-TOOLS = [GREP, RIPGREP, HYPERSCAN, SEQKIT, FQGREP, GREPQ, BTS, DEACON, K2RMINI]
+TOOLS = [
+    GREP,
+    RIPGREP,
+    HYPERSCAN,
+    SEQKIT,
+    FQGREP,
+    GREPQ,
+    CLEANIFIER,
+    BTS,
+    DEACON,
+    K2RMINI,
+]
