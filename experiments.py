@@ -26,8 +26,12 @@ def run(args):
     m = args.minimizer_size
 
     selected_tool_names = [name.lower() for name in args.select_tools]
+    excluded_tool_names = [name.lower() for name in args.exclude_tools]
     selected_tools = [
-        tool for tool in TOOLS if tool.name.lower() in selected_tool_names
+        tool
+        for tool in TOOLS
+        if tool.name.lower() in selected_tool_names
+        and tool.name.lower() not in excluded_tool_names
     ]
     selected_tool_names = [tool.name for tool in selected_tools]
 
@@ -155,6 +159,14 @@ if __name__ == "__main__":
         nargs="+",
         type=str,
         default=[tool.name for tool in TOOLS],
+    )
+    parser.add_argument(
+        "-x",
+        "--exclude_tools",
+        help="exclude specific tools [none]",
+        nargs="+",
+        type=str,
+        default=[],
     )
     parser.add_argument(
         "-R",

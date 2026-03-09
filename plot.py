@@ -47,6 +47,14 @@ parser.add_argument(
     default=TOOL_NAMES,
 )
 parser.add_argument(
+    "-x",
+    "--exclude_tools",
+    help="exclude specific tools [none]",
+    nargs="+",
+    type=str,
+    default=[],
+)
+parser.add_argument(
     "-l",
     "--log_dir",
     help="log directory ['log']",
@@ -67,7 +75,13 @@ plots_dir = pathlib.Path(args.plots_dir)
 plots_dir.mkdir(exist_ok=True)
 
 selected_tool_names = [name.lower() for name in args.select_tools]
-selected_tools = [tool for tool in TOOLS if tool.name.lower() in selected_tool_names]
+excluded_tool_names = [name.lower() for name in args.exclude_tools]
+selected_tools = [
+    tool
+    for tool in TOOLS
+    if tool.name.lower() in selected_tool_names
+    and tool.name.lower() not in excluded_tool_names
+]
 selected_tool_names = [tool.name for tool in selected_tools]
 
 LOGS = []
