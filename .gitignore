@@ -20,4 +20,5 @@ __pycache__
 *.svg
 
 nohup.out
+.brename_detail.txt
 .DS_Store
