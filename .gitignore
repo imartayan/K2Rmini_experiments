@@ -6,6 +6,7 @@ plots
 K2Rmini
 back_to_sequences
 grepq
+bcalm
 
 __pycache__
 *.pyc
@@ -20,5 +21,6 @@ __pycache__
 *.svg
 
 nohup.out
+.temp_files
 .brename_detail.txt
 .DS_Store
