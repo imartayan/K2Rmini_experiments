@@ -36,8 +36,9 @@ parser.add_argument(
     "-f",
     "--format",
     help="plot format ['pdf']",
+    nargs="+",
     type=str,
-    default="pdf",
+    default=["pdf"],
 )
 parser.add_argument(
     "-s",
@@ -116,12 +117,10 @@ selected_tool_names = [name for name in selected_tool_names if name in NAMES]
 sns.set_context("talk")
 
 for k, reads, threads in itertools.product(KS, READS, THREADS):
+    reads_name = basename(pathlib.Path(reads))
     data = DATA.loc[
         (DATA["k"] == k) & (DATA["reads"] == reads) & (DATA["threads"] == threads)
     ]
-
-    reads_name = basename(pathlib.Path(reads))
-    out = plots_dir / f"plot_time_k{k}_t{threads}_{reads_name}.{args.format}"
 
     plt.figure()
     ax = sns.lineplot(
@@ -158,8 +157,10 @@ for k, reads, threads in itertools.product(KS, READS, THREADS):
 
     plt.gcf().set_size_inches(10, 5.5)
 
-    plt.savefig(
-        out,
-        bbox_inches="tight",
-        dpi=300,
-    )
+    for format in args.format:
+        out = plots_dir / f"plot_time_k{k}_t{threads}_{reads_name}.{format}"
+        plt.savefig(
+            out,
+            bbox_inches="tight",
+            dpi=300,
+        )
