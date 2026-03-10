@@ -17,4 +17,5 @@ target/
 #.idea/
 
 Cargo.lock
+.temp_files
 .DS_Store
