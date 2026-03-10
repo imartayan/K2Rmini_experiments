@@ -11,3 +11,4 @@ bash install/fqgrep.sh
 bash install/grepq.sh
 bash install/cleanifier.sh
 bash install/scan.sh
+bash install/bcalm.sh
