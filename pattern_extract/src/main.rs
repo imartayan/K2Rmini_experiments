@@ -81,10 +81,14 @@ fn main() {
             hashes.clear();
             hasher.hash_kmers_simd(packed, 1).collect_into(&mut hashes);
 
-            let mut stop = args.k - 1;
-            for (kmer, &hash) in seq.windows(args.k).zip(hashes.iter()) {
-                stop += 1;
+            let mut start = None;
+            let mut stop = 0;
+            for (i, (kmer, &hash)) in seq.windows(args.k).zip(hashes.iter()).enumerate() {
                 if seen.insert(hash) {
+                    if start.is_none() {
+                        start = Some(i);
+                    }
+                    stop = i + args.k;
                     if let Some(ref mut writer) = text_writer {
                         writer.write_all(kmer).unwrap();
                         writer.write_all(b"\n").unwrap();
@@ -94,9 +98,11 @@ fn main() {
                     }
                 }
             }
-            if let Some(ref mut writer) = fasta_writer {
+            if let Some(start) = start
+                && let Some(ref mut writer) = fasta_writer
+            {
                 writer.write_all(b">\n").unwrap();
-                writer.write_all(&seq[..stop]).unwrap();
+                writer.write_all(&seq[start..stop]).unwrap();
                 writer.write_all(b"\n").unwrap();
             }
             if seen.len() == args.num_kmers {
@@ -105,8 +111,8 @@ fn main() {
         }
     } else {
         let seq = AsciiSeqVec::random(args.num_kmers + args.k - 1).into_raw();
-        for kmer in seq.windows(args.k) {
-            if let Some(ref mut writer) = text_writer {
+        if let Some(ref mut writer) = text_writer {
+            for kmer in seq.windows(args.k) {
                 writer.write_all(kmer).unwrap();
                 writer.write_all(b"\n").unwrap();
             }
