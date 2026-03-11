@@ -237,8 +237,7 @@ elif args.versus == "threads":
             linewidth=2.5,
         )
 
-        plt.xscale("log", base=2)
-        plt.yscale("log", base=10)
+        plt.ylim(bottom=0)
         plt.xlabel("# threads")
         plt.ylabel("CPU time (s)")
         plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
@@ -280,8 +279,7 @@ elif args.versus == "threads":
             linewidth=2.5,
         )
 
-        plt.xscale("log", base=2)
-        plt.yscale("log", base=10)
+        plt.ylim(bottom=0)
         plt.xlabel("# threads")
         plt.ylabel("RAM usage (MB)")
         plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
@@ -331,8 +329,7 @@ elif args.versus == "k":
             linewidth=2.5,
         )
 
-        plt.xscale("log", base=2)
-        plt.yscale("log", base=10)
+        plt.ylim(bottom=0)
         plt.xlabel("$k$-mer size")
         plt.ylabel("CPU time (s)")
         plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
@@ -374,8 +371,7 @@ elif args.versus == "k":
             linewidth=2.5,
         )
 
-        plt.xscale("log", base=2)
-        plt.yscale("log", base=10)
+        plt.ylim(bottom=0)
         plt.xlabel("$k$-mer size")
         plt.ylabel("RAM usage (MB)")
         plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
