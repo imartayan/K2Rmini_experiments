@@ -1,4 +1,5 @@
 import argparse
+import itertools
 import pathlib
 import sys
 
@@ -23,7 +24,6 @@ def run(args):
     patterns_dir.mkdir(exist_ok=True)
     log_dir = pathlib.Path(args.log_dir)
     log_dir.mkdir(exist_ok=True)
-    k = args.kmer_size
     m = args.minimizer_size
 
     selected_tool_names = [name.lower() for name in args.select_tools]
@@ -36,121 +36,123 @@ def run(args):
     ]
     selected_tool_names = [tool.name for tool in selected_tools]
 
-    ref_timed_out = {name: False for name in selected_tool_names}
-    random_timed_out = {name: False for name in selected_tool_names}
-    max_workers = max(args.max_workers // args.threads, 1)
-    for n in args.num_patterns:
-        random_fasta = patterns_dir / f"random_{n}.fa"
-        random_txt = random_fasta.with_suffix(".txt")
-        ref_fasta = patterns_dir / f"{reads_name}_{n}.fa"
-        ref_txt = ref_fasta.with_suffix(".txt")
-        ref_fasta_matchtigs = patterns_dir / f"{reads_name}_matchtigs_{n}.fa"
-        execute(
-            f"pattern_extract -k {k} -n {n} -f {random_fasta} -t {random_txt}",
-            silent=True,
-        )
-        execute(
-            f"pattern_extract -k {k} -n {n} -r {reads} -f {ref_fasta} -t {ref_txt}",
-            silent=True,
-        )
-        if args.matchtigs and not ref_fasta_matchtigs.exists():
+    for k in args.kmer_size:
+        for n in args.num_patterns:
+            random_fasta = patterns_dir / f"random_k{k}_{n}.fa"
+            random_txt = random_fasta.with_suffix(".txt")
+            ref_fasta = patterns_dir / f"{reads_name}_k{k}_{n}.fa"
+            ref_txt = ref_fasta.with_suffix(".txt")
+            ref_fasta_matchtigs = patterns_dir / f"{reads_name}_matchtigs_k{k}_{n}.fa"
             execute(
-                f"ggcat build -k {k} -s 1 -f -j {args.max_workers} -m 8 -p --greedy-matchtigs -o {ref_fasta_matchtigs} {ref_fasta}",
+                f"pattern_extract -k {k} -n {n} -f {random_fasta} -t {random_txt}",
                 silent=True,
             )
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = []
-        for n in args.num_patterns:
-            random_fasta = patterns_dir / f"random_{n}.fa"
-            random_txt = random_fasta.with_suffix(".txt")
-            ref_fasta = patterns_dir / f"{reads_name}_{n}.fa"
-            ref_txt = ref_fasta.with_suffix(".txt")
-            if args.matchtigs:
-                ref_fasta = patterns_dir / f"{reads_name}_matchtigs_{n}.fa"
-            for tool in selected_tools:
-                if max_workers > 1:
-                    futures.append(
-                        executor.submit(
-                            run_tool,
-                            tool,
-                            random_timed_out,
-                            random_fasta,
-                            reads,
-                            repeat=args.repeat,
-                            timeout=args.timeout,
-                            overwrite_log=args.overwrite_logs,
-                            log_dir=log_dir,
-                            num_patterns=n,
-                            random=True,
-                            matchtigs=False,
-                            threads=args.threads,
-                            threshold=args.threshold,
-                            k=k,
-                            m=m,
-                            silent=True,
-                        )
-                    )
-                else:
-                    run_tool(
-                        tool,
-                        random_timed_out,
-                        random_fasta,
-                        reads,
-                        repeat=args.repeat,
-                        timeout=args.timeout,
-                        overwrite_log=args.overwrite_logs,
-                        log_dir=log_dir,
-                        num_patterns=n,
-                        random=True,
-                        matchtigs=False,
-                        threads=args.threads,
-                        threshold=args.threshold,
-                        k=k,
-                        m=m,
-                    )
-            for tool in selected_tools:
-                if max_workers > 1:
-                    futures.append(
-                        executor.submit(
-                            run_tool,
-                            tool,
-                            ref_timed_out,
-                            ref_fasta,
-                            reads,
-                            repeat=args.repeat,
-                            timeout=args.timeout,
-                            overwrite_log=args.overwrite_logs,
-                            log_dir=log_dir,
-                            num_patterns=n,
-                            random=False,
-                            matchtigs=args.matchtigs,
-                            threads=args.threads,
-                            threshold=args.threshold,
-                            k=k,
-                            m=m,
-                            silent=True,
-                        )
-                    )
-                else:
-                    run_tool(
-                        tool,
-                        ref_timed_out,
-                        ref_fasta,
-                        reads,
-                        repeat=args.repeat,
-                        timeout=args.timeout,
-                        overwrite_log=args.overwrite_logs,
-                        log_dir=log_dir,
-                        num_patterns=n,
-                        random=False,
-                        matchtigs=args.matchtigs,
-                        threads=args.threads,
-                        threshold=args.threshold,
-                        k=k,
-                        m=m,
-                    )
-        for future in futures:
-            future.result()
+            execute(
+                f"pattern_extract -k {k} -n {n} -r {reads} -f {ref_fasta} -t {ref_txt}",
+                silent=True,
+            )
+            if args.matchtigs and not ref_fasta_matchtigs.exists():
+                execute(
+                    f"ggcat build -k {k} -s 1 -f -j {args.max_workers} -m 8 -p --greedy-matchtigs -o {ref_fasta_matchtigs} {ref_fasta}",
+                    silent=True,
+                )
+        ref_timed_out = {name: False for name in selected_tool_names}
+        random_timed_out = {name: False for name in selected_tool_names}
+        for threads in args.threads:
+            max_workers = max(args.max_workers // threads, 1)
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                futures = []
+                for n in args.num_patterns:
+                    random_fasta = patterns_dir / f"random_k{k}_{n}.fa"
+                    random_txt = random_fasta.with_suffix(".txt")
+                    ref_fasta = patterns_dir / f"{reads_name}_k{k}_{n}.fa"
+                    ref_txt = ref_fasta.with_suffix(".txt")
+                    if args.matchtigs:
+                        ref_fasta = patterns_dir / f"{reads_name}_matchtigs_k{k}_{n}.fa"
+                    for tool in selected_tools:
+                        if max_workers > 1:
+                            futures.append(
+                                executor.submit(
+                                    run_tool,
+                                    tool,
+                                    random_timed_out,
+                                    random_fasta,
+                                    reads,
+                                    repeat=args.repeat,
+                                    timeout=args.timeout,
+                                    overwrite_log=args.overwrite_logs,
+                                    log_dir=log_dir,
+                                    num_patterns=n,
+                                    random=True,
+                                    matchtigs=False,
+                                    threads=threads,
+                                    threshold=args.threshold,
+                                    k=k,
+                                    m=m,
+                                    silent=True,
+                                )
+                            )
+                        else:
+                            run_tool(
+                                tool,
+                                random_timed_out,
+                                random_fasta,
+                                reads,
+                                repeat=args.repeat,
+                                timeout=args.timeout,
+                                overwrite_log=args.overwrite_logs,
+                                log_dir=log_dir,
+                                num_patterns=n,
+                                random=True,
+                                matchtigs=False,
+                                threads=threads,
+                                threshold=args.threshold,
+                                k=k,
+                                m=m,
+                            )
+                    for tool in selected_tools:
+                        if max_workers > 1:
+                            futures.append(
+                                executor.submit(
+                                    run_tool,
+                                    tool,
+                                    ref_timed_out,
+                                    ref_fasta,
+                                    reads,
+                                    repeat=args.repeat,
+                                    timeout=args.timeout,
+                                    overwrite_log=args.overwrite_logs,
+                                    log_dir=log_dir,
+                                    num_patterns=n,
+                                    random=False,
+                                    matchtigs=args.matchtigs,
+                                    threads=threads,
+                                    threshold=args.threshold,
+                                    k=k,
+                                    m=m,
+                                    silent=True,
+                                )
+                            )
+                        else:
+                            run_tool(
+                                tool,
+                                ref_timed_out,
+                                ref_fasta,
+                                reads,
+                                repeat=args.repeat,
+                                timeout=args.timeout,
+                                overwrite_log=args.overwrite_logs,
+                                log_dir=log_dir,
+                                num_patterns=n,
+                                random=False,
+                                matchtigs=args.matchtigs,
+                                threads=threads,
+                                threshold=args.threshold,
+                                k=k,
+                                m=m,
+                            )
+                for future in futures:
+                    future.result()
 
 
 if __name__ == "__main__":
@@ -211,8 +213,9 @@ if __name__ == "__main__":
         "-j",
         "--threads",
         help="number of threads for each tool [8]",
+        nargs="+",
         type=int,
-        default=8,
+        default=[8],
     )
     parser.add_argument(
         "-w",
@@ -232,8 +235,9 @@ if __name__ == "__main__":
         "-k",
         "--kmer_size",
         help="k-mer size [31]",
+        nargs="+",
         type=int,
-        default=31,
+        default=[31],
     )
     parser.add_argument(
         "-m",
