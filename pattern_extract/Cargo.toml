@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
-helicase = { git = "https://github.com/imartayan/helicase.git", branch = "mask", features = [
+helicase = { git = "https://github.com/imartayan/helicase.git", features = [
     "packed-seq",
 ] }
 nohash-hasher = "0.2"
