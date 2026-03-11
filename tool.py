@@ -85,8 +85,10 @@ class Tool:
         log_dir: os.PathLike = LOG_DIR,
         **params,
     ) -> os.PathLike:
+        k = params.get("k", "")
+        t = params.get("threads", "")
         filename = "_".join(
-            [self.name, basename(reads), basename(patterns)]
+            [self.name, f"k{k}", f"t{t}", basename(reads), basename(patterns)]
             # + [f"{k}{v}" for (k, v) in params.items()]  # too long?
         )
         return log_dir / f"{filename}.json"
