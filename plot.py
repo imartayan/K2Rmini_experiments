@@ -165,3 +165,46 @@ for k, reads, threads in itertools.product(KS, READS, THREADS):
             bbox_inches="tight",
             dpi=300,
         )
+
+    plt.figure()
+    ax = sns.lineplot(
+        data=data,
+        x="num_patterns",
+        y="memory",
+        hue="tool",
+        hue_order=selected_tool_names,
+        palette=PALETTE,
+        style="random",
+        markers=True,
+        linewidth=2.5,
+    )
+
+    plt.xscale("log", base=2)
+    plt.yscale("log", base=10)
+    plt.xlabel("# $k$-mers of interest")
+    plt.ylabel("RAM usage (MB)")
+    plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
+
+    handles, labels = plt.gca().get_legend_handles_labels()
+    labels[0] = "Tool"
+    labels[len(selected_tool_names) + 1] = ""
+    labels[len(selected_tool_names) + 2] = "positive"
+    labels[len(selected_tool_names) + 3] = "negative"
+    plt.legend(
+        handles,
+        labels,
+        title="",
+        loc="upper left",
+        bbox_to_anchor=(1, 1),
+        bbox_transform=plt.gca().transAxes,
+    )
+
+    plt.gcf().set_size_inches(10, 5.5)
+
+    for format in args.format:
+        out = plots_dir / f"plot_memory_k{k}_t{threads}_{reads_name}.{format}"
+        plt.savefig(
+            out,
+            bbox_inches="tight",
+            dpi=300,
+        )
