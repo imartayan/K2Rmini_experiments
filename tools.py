@@ -106,8 +106,9 @@ def sbwt_cmd(
     **params,
 ) -> str:
     k = get_param("k", params, 31)
-    t = get_param("threads", params, 8)
-    return [f"sbwt_filter -k {k} -t {t} -p {patterns} -r {reads} > /dev/null"]
+    t = get_param("threshold", params, 0.8)
+    T = get_param("threads", params, 8)
+    return [f"sbwt_filter -k {k} -t {t} -T {T} -p {patterns} {reads} -o /dev/null"]
 
 
 def grep_cmd(
