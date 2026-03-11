@@ -34,7 +34,7 @@ bash install.sh
 
 This will store all the binaries in the `bin` folder.
 
-## Experiments
+## Running the experiments
 
 You can run the experiments on your desired set of reads (in FASTQ format).
 For instance, you can use [these PacBio long reads](https://s3-us-west-2.amazonaws.com/human-pangenomics/NHGRI_UCSC_panel/HG002/hpp_HG002_NA24385_son_v1/PacBio_HiFi/15kb/m54328_180928_230446.Q20.fastq).
@@ -56,4 +56,20 @@ You can change the output format (`-f`) and the directories used for the logs (`
 
 ```sh
 python3 plot.py -f pdf
+```
+
+## Experiments from the paper
+
+```sh
+# varying number of patterns
+python3 experiments.py -r <READS> -R 5 -T 300 -k 31 -j 8 -l log
+python3 plot.py -f pdf png --versus num_patterns -l log
+
+# varying number of threads
+python3 experiments.py -r <READS> -R 5 -T 300 -k 31 -n 1048576 -j 1 2 3 4 5 6 7 8 -l logt -s k2rmini deacon cleanifier sbwt bts
+python3 plot.py -f pdf png --versus threads -l logt
+
+# varying k-mer size
+python3 experiments.py -r <READS> -R 5 -T 300 -j 8 -n 1048576 -k 31 39 47 55 63 -l logk -s k2rmini deacon cleanifier sbwt bts
+python3 plot.py -f pdf png --versus k -l logk
 ```
