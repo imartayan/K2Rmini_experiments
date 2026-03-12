@@ -329,7 +329,7 @@ elif args.versus == "k":
             linewidth=2.5,
         )
 
-        plt.ylim(bottom=0)
+        plt.yscale("log", base=10)
         plt.xlabel("$k$-mer size")
         plt.ylabel("CPU time (s)")
         plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
