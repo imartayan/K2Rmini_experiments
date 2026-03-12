@@ -1,5 +1,7 @@
 # K2Rmini Experiments
 
+Experiments on [K2Rmini](https://github.com/Malfoy/K2Rmini) and other sequence filtering tools.
+
 ## Requirements
 
 Make sure to install the latest Rust version with [rustup](https://rustup.rs/).
@@ -55,7 +57,7 @@ Once some results are available in the `log` folder, you can generate plots comp
 You can change the output format (`-f`), tools shown (`-s`) or excluded (`-x`) from the plots, and the directories used for the logs (`-l`) and plots (`-p`).
 
 Three types of plots are available:
-- time/memory vs number of patterns (default)
+- time/memory vs number of patterns `--versus num_patterns` (default)
 - time/memory vs number of threads using `--versus threads`
 - time/memory vs *k*-mer size using `--versus k`
 
