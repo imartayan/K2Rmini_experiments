@@ -62,14 +62,14 @@ python3 plot.py -f pdf
 
 ```sh
 # varying number of patterns
-python3 experiments.py -r <READS> -R 5 -T 300 -k 31 -j 8 -l log
+python3 experiments.py -r <READS> -R 5 -T 300 -k 31 -j 1 8 -l log
 python3 plot.py -f pdf png --versus num_patterns -l log
 
 # varying number of threads
-python3 experiments.py -r <READS> -R 5 -T 300 -k 31 -n 1048576 -j 1 2 3 4 5 6 7 8 -l logt -s k2rmini deacon cleanifier sbwt bts
+python3 experiments.py -r <READS> -R 5 -T 300 -k 31 -n 1048576 -j 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 -l logt -s k2rmini deacon sbwt bts cleanifier
 python3 plot.py -f pdf png --versus threads -l logt
 
 # varying k-mer size
-python3 experiments.py -r <READS> -R 5 -T 300 -j 8 -n 1048576 -k 31 39 47 55 63 -l logk -s k2rmini deacon cleanifier sbwt bts
+python3 experiments.py -r <READS> -R 5 -T 300 -j 1 -n 1048576 -k 31 39 47 55 63 71 79 87 -l logk -s k2rmini deacon sbwt bts
 python3 plot.py -f pdf png --versus k -l logk
 ```
