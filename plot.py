@@ -237,7 +237,7 @@ elif args.versus == "threads":
             linewidth=2.5,
         )
 
-        plt.ylim(bottom=0)
+        plt.yscale("log", base=10)
         plt.xlabel("# threads")
         plt.ylabel("CPU time (s)")
         plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
