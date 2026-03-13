@@ -5,6 +5,7 @@ import pathlib
 
 import pandas as pd
 import seaborn as sns
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 
 from tools import TOOLS
@@ -153,14 +154,35 @@ def make_plot(
     plt.ylabel(ylabel)
     plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
 
-    handles, labels = plt.gca().get_legend_handles_labels()
-    labels[0] = "Tool"
-    labels[len(selected_tool_names) + 1] = ""
-    labels[len(selected_tool_names) + 2] = "positive"
-    labels[len(selected_tool_names) + 3] = "negative"
-    plt.legend(
-        handles,
-        labels,
+    raw_handles, raw_labels = plt.gca().get_legend_handles_labels()
+    n = len(selected_tool_names)
+    tool_handles = raw_handles[1 : n + 1]
+    tool_labels = raw_labels[1 : n + 1]
+    style_handles = raw_handles[n + 2 :]
+
+    blank = mpatches.Patch(visible=False)
+    new_handles, new_labels = [], []
+
+    new_handles.append(blank)
+    new_labels.append("Exact tool")
+    for h, l in zip(tool_handles, tool_labels):
+        if l != "Deacon":
+            new_handles.append(h)
+            new_labels.append(l)
+
+    new_handles.append(blank)
+    new_labels.append("Approx tool")
+    for h, l in zip(tool_handles, tool_labels):
+        if l == "Deacon":
+            new_handles.append(h)
+            new_labels.append(l)
+
+    new_handles += [blank] + list(style_handles)
+    new_labels += [""] + ["positive", "negative"]
+
+    leg = plt.legend(
+        new_handles,
+        new_labels,
         title="",
         loc="upper left",
         bbox_to_anchor=(1, 1),
