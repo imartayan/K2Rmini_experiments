@@ -7,15 +7,15 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+from matplotlib.colors import to_hex
 
 from tools import TOOLS
 from tool import basename
 
 TOOL_NAMES = [tool.name for tool in TOOLS]
 # https://github.com/ngregorich/plot_color_palettes/blob/main/README.md
-PALETTE = {
-    k: v
-    for k, v in zip(
+PALETTE = dict(
+    zip(
         TOOL_NAMES,
         [
             "#E15759",
@@ -31,7 +31,25 @@ PALETTE = {
             "#4E79A7",
         ],
     )
-}
+)
+MARKERS = dict(
+    zip(
+        TOOL_NAMES,
+        [
+            "*",
+            "^",
+            "D",
+            "X",
+            "h",
+            "H",
+            "P",
+            "p",
+            "v",
+            "s",
+            "o",
+        ],
+    )
+)
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -131,7 +149,7 @@ def make_plot(
     data, x, y, xlabel, ylabel, out_stem, xscale=None, yscale=None, ylim_bottom=None
 ):
     plt.figure()
-    sns.lineplot(
+    ax = sns.lineplot(
         data=data,
         x=x,
         y=y,
@@ -142,6 +160,12 @@ def make_plot(
         markers=True,
         linewidth=2.5,
     )
+
+    hex_to_tool = {to_hex(v): k for k, v in PALETTE.items()}
+    for line in ax.get_lines():
+        tool = hex_to_tool.get(to_hex(line.get_color()))
+        if tool and tool in MARKERS:
+            line.set_marker(MARKERS[tool])
 
     if xscale is not None:
         plt.xscale("log", base=xscale)
