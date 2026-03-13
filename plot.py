@@ -125,188 +125,107 @@ selected_tool_names = [name for name in selected_tool_names if name in NAMES]
 
 sns.set_context("talk")
 
+
+def make_plot(
+    data, x, y, xlabel, ylabel, out_stem, xscale=None, yscale=None, ylim_bottom=None
+):
+    plt.figure()
+    sns.lineplot(
+        data=data,
+        x=x,
+        y=y,
+        hue="tool",
+        hue_order=selected_tool_names,
+        palette=PALETTE,
+        style="random",
+        markers=True,
+        linewidth=2.5,
+    )
+
+    if xscale is not None:
+        plt.xscale("log", base=xscale)
+    if yscale is not None:
+        plt.yscale("log", base=yscale)
+    if ylim_bottom is not None:
+        plt.ylim(bottom=ylim_bottom)
+
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
+
+    handles, labels = plt.gca().get_legend_handles_labels()
+    labels[0] = "Tool"
+    labels[len(selected_tool_names) + 1] = ""
+    labels[len(selected_tool_names) + 2] = "positive"
+    labels[len(selected_tool_names) + 3] = "negative"
+    plt.legend(
+        handles,
+        labels,
+        title="",
+        loc="upper left",
+        bbox_to_anchor=(1, 1),
+        bbox_transform=plt.gca().transAxes,
+    )
+
+    plt.gcf().set_size_inches(10, 5.5)
+
+    for fmt in args.format:
+        plt.savefig(plots_dir / f"{out_stem}.{fmt}", bbox_inches="tight", dpi=300)
+        print(f"Saved {out_stem}.{fmt}")
+
+
 if args.versus == "num_patterns":
     for k, threads, reads in itertools.product(KS, THREADS, READS):
         reads_name = basename(pathlib.Path(reads))
         data = DATA.loc[
             (DATA["k"] == k) & (DATA["threads"] == threads) & (DATA["reads"] == reads)
         ]
-
-        plt.figure()
-        ax = sns.lineplot(
-            data=data,
-            x="num_patterns",
-            y="time",
-            hue="tool",
-            hue_order=selected_tool_names,
-            palette=PALETTE,
-            style="random",
-            markers=True,
-            linewidth=2.5,
+        stem = f"k{k}_t{threads}_{reads_name}"
+        make_plot(
+            data,
+            "num_patterns",
+            "time",
+            "# $k$-mers of interest",
+            "CPU time (s)",
+            f"plot_time_{stem}",
+            xscale=2,
+            yscale=10,
         )
-
-        plt.xscale("log", base=2)
-        plt.yscale("log", base=10)
-        plt.xlabel("# $k$-mers of interest")
-        plt.ylabel("CPU time (s)")
-        plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
-
-        handles, labels = plt.gca().get_legend_handles_labels()
-        labels[0] = "Tool"
-        labels[len(selected_tool_names) + 1] = ""
-        labels[len(selected_tool_names) + 2] = "positive"
-        labels[len(selected_tool_names) + 3] = "negative"
-        plt.legend(
-            handles,
-            labels,
-            title="",
-            loc="upper left",
-            bbox_to_anchor=(1, 1),
-            bbox_transform=plt.gca().transAxes,
+        make_plot(
+            data,
+            "num_patterns",
+            "memory",
+            "# $k$-mers of interest",
+            "RAM usage (MB)",
+            f"plot_memory_{stem}",
+            xscale=2,
+            yscale=10,
         )
-
-        plt.gcf().set_size_inches(10, 5.5)
-
-        for format in args.format:
-            out = plots_dir / f"plot_time_k{k}_t{threads}_{reads_name}.{format}"
-            plt.savefig(
-                out,
-                bbox_inches="tight",
-                dpi=300,
-            )
-
-        plt.figure()
-        ax = sns.lineplot(
-            data=data,
-            x="num_patterns",
-            y="memory",
-            hue="tool",
-            hue_order=selected_tool_names,
-            palette=PALETTE,
-            style="random",
-            markers=True,
-            linewidth=2.5,
-        )
-
-        plt.xscale("log", base=2)
-        plt.yscale("log", base=10)
-        plt.xlabel("# $k$-mers of interest")
-        plt.ylabel("RAM usage (MB)")
-        plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
-
-        handles, labels = plt.gca().get_legend_handles_labels()
-        labels[0] = "Tool"
-        labels[len(selected_tool_names) + 1] = ""
-        labels[len(selected_tool_names) + 2] = "positive"
-        labels[len(selected_tool_names) + 3] = "negative"
-        plt.legend(
-            handles,
-            labels,
-            title="",
-            loc="upper left",
-            bbox_to_anchor=(1, 1),
-            bbox_transform=plt.gca().transAxes,
-        )
-
-        plt.gcf().set_size_inches(10, 5.5)
-
-        for format in args.format:
-            out = plots_dir / f"plot_memory_k{k}_t{threads}_{reads_name}.{format}"
-            plt.savefig(
-                out,
-                bbox_inches="tight",
-                dpi=300,
-            )
 elif args.versus == "threads":
     for k, n, reads in itertools.product(KS, NUM_PATTERNS, READS):
         reads_name = basename(pathlib.Path(reads))
         data = DATA.loc[
             (DATA["k"] == k) & (DATA["num_patterns"] == n) & (DATA["reads"] == reads)
         ]
-
-        plt.figure()
-        ax = sns.lineplot(
-            data=data,
-            x="threads",
-            y="time",
-            hue="tool",
-            hue_order=selected_tool_names,
-            palette=PALETTE,
-            style="random",
-            markers=True,
-            linewidth=2.5,
+        stem = f"k{k}_n{n}_{reads_name}"
+        make_plot(
+            data,
+            "threads",
+            "time",
+            "# threads",
+            "CPU time (s)",
+            f"plot_time_vs_t_{stem}",
+            yscale=10,
         )
-
-        plt.yscale("log", base=10)
-        plt.xlabel("# threads")
-        plt.ylabel("CPU time (s)")
-        plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
-
-        handles, labels = plt.gca().get_legend_handles_labels()
-        labels[0] = "Tool"
-        labels[len(selected_tool_names) + 1] = ""
-        labels[len(selected_tool_names) + 2] = "positive"
-        labels[len(selected_tool_names) + 3] = "negative"
-        plt.legend(
-            handles,
-            labels,
-            title="",
-            loc="upper left",
-            bbox_to_anchor=(1, 1),
-            bbox_transform=plt.gca().transAxes,
+        make_plot(
+            data,
+            "threads",
+            "memory",
+            "# threads",
+            "RAM usage (MB)",
+            f"plot_memory_vs_t_{stem}",
+            ylim_bottom=0,
         )
-
-        plt.gcf().set_size_inches(10, 5.5)
-
-        for format in args.format:
-            out = plots_dir / f"plot_time_vs_t_k{k}_n{n}_{reads_name}.{format}"
-            plt.savefig(
-                out,
-                bbox_inches="tight",
-                dpi=300,
-            )
-
-        plt.figure()
-        ax = sns.lineplot(
-            data=data,
-            x="threads",
-            y="memory",
-            hue="tool",
-            hue_order=selected_tool_names,
-            palette=PALETTE,
-            style="random",
-            markers=True,
-            linewidth=2.5,
-        )
-
-        plt.ylim(bottom=0)
-        plt.xlabel("# threads")
-        plt.ylabel("RAM usage (MB)")
-        plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
-
-        handles, labels = plt.gca().get_legend_handles_labels()
-        labels[0] = "Tool"
-        labels[len(selected_tool_names) + 1] = ""
-        labels[len(selected_tool_names) + 2] = "positive"
-        labels[len(selected_tool_names) + 3] = "negative"
-        plt.legend(
-            handles,
-            labels,
-            title="",
-            loc="upper left",
-            bbox_to_anchor=(1, 1),
-            bbox_transform=plt.gca().transAxes,
-        )
-
-        plt.gcf().set_size_inches(10, 5.5)
-
-        for format in args.format:
-            out = plots_dir / f"plot_memory_vs_t_k{k}_n{n}_{reads_name}.{format}"
-            plt.savefig(
-                out,
-                bbox_inches="tight",
-                dpi=300,
-            )
 elif args.versus == "k":
     for t, n, reads in itertools.product(THREADS, NUM_PATTERNS, READS):
         reads_name = basename(pathlib.Path(reads))
@@ -315,87 +234,24 @@ elif args.versus == "k":
             & (DATA["num_patterns"] == n)
             & (DATA["reads"] == reads)
         ]
-
-        plt.figure()
-        ax = sns.lineplot(
-            data=data,
-            x="k",
-            y="time",
-            hue="tool",
-            hue_order=selected_tool_names,
-            palette=PALETTE,
-            style="random",
-            markers=True,
-            linewidth=2.5,
+        stem = f"t{t}_n{n}_{reads_name}"
+        make_plot(
+            data,
+            "k",
+            "time",
+            "$k$-mer size",
+            "CPU time (s)",
+            f"plot_time_vs_k_{stem}",
+            yscale=10,
         )
-
-        plt.yscale("log", base=10)
-        plt.xlabel("$k$-mer size")
-        plt.ylabel("CPU time (s)")
-        plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
-
-        handles, labels = plt.gca().get_legend_handles_labels()
-        labels[0] = "Tool"
-        labels[len(selected_tool_names) + 1] = ""
-        labels[len(selected_tool_names) + 2] = "positive"
-        labels[len(selected_tool_names) + 3] = "negative"
-        plt.legend(
-            handles,
-            labels,
-            title="",
-            loc="upper left",
-            bbox_to_anchor=(1, 1),
-            bbox_transform=plt.gca().transAxes,
+        make_plot(
+            data,
+            "k",
+            "memory",
+            "$k$-mer size",
+            "RAM usage (MB)",
+            f"plot_memory_vs_k_{stem}",
+            ylim_bottom=0,
         )
-
-        plt.gcf().set_size_inches(10, 5.5)
-
-        for format in args.format:
-            out = plots_dir / f"plot_time_vs_k_t{t}_n{n}_{reads_name}.{format}"
-            plt.savefig(
-                out,
-                bbox_inches="tight",
-                dpi=300,
-            )
-
-        plt.figure()
-        ax = sns.lineplot(
-            data=data,
-            x="k",
-            y="memory",
-            hue="tool",
-            hue_order=selected_tool_names,
-            palette=PALETTE,
-            style="random",
-            markers=True,
-            linewidth=2.5,
-        )
-
-        plt.ylim(bottom=0)
-        plt.xlabel("$k$-mer size")
-        plt.ylabel("RAM usage (MB)")
-        plt.grid(axis="y", which="major", color="lightgray", linestyle="--")
-
-        handles, labels = plt.gca().get_legend_handles_labels()
-        labels[0] = "Tool"
-        labels[len(selected_tool_names) + 1] = ""
-        labels[len(selected_tool_names) + 2] = "positive"
-        labels[len(selected_tool_names) + 3] = "negative"
-        plt.legend(
-            handles,
-            labels,
-            title="",
-            loc="upper left",
-            bbox_to_anchor=(1, 1),
-            bbox_transform=plt.gca().transAxes,
-        )
-
-        plt.gcf().set_size_inches(10, 5.5)
-
-        for format in args.format:
-            out = plots_dir / f"plot_memory_vs_k_t{t}_n{n}_{reads_name}.{format}"
-            plt.savefig(
-                out,
-                bbox_inches="tight",
-                dpi=300,
-            )
+else:
+    print(f"Unknown --versus parameter: {args.versus}")
