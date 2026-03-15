@@ -23,7 +23,7 @@ sudo dnf install -y libsq3-devel libzstd-devel hyperscan-devel pipx python3-pand
 ### macOS
 
 ```sh
-brew install zstd vectorscan pipx
+brew install gnu-time zstd vectorscan pipx
 ```
 
 ## Installation
