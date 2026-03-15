@@ -183,6 +183,8 @@ def make_plot(
     tool_handles = raw_handles[1 : n + 1]
     tool_labels = raw_labels[1 : n + 1]
     style_handles = raw_handles[n + 2 :]
+    for h in style_handles:
+        h.set_marker("none")
 
     blank = mpatches.Patch(visible=False)
     new_handles, new_labels = [], []
@@ -195,25 +197,28 @@ def make_plot(
             new_labels.append(l)
 
     new_handles.append(blank)
+    new_labels.append("")
+    new_handles.append(blank)
     new_labels.append("Approx tool")
     for h, l in zip(tool_handles, tool_labels):
         if l == "Deacon":
             new_handles.append(h)
             new_labels.append(l)
 
-    new_handles += [blank] + list(style_handles)
-    new_labels += [""] + ["positive", "negative"]
+    new_handles.append(blank)
+    new_labels.append("")
+    new_handles += list(style_handles)
+    new_labels += ["positive", "negative"]
 
     leg = plt.legend(
         new_handles,
         new_labels,
         title="",
         loc="upper left",
-        bbox_to_anchor=(1, 1),
-        bbox_transform=plt.gca().transAxes,
+        bbox_to_anchor=(1, 1.025),
     )
 
-    plt.gcf().set_size_inches(10, 5.5)
+    plt.gcf().set_size_inches(10, 6.5)
 
     for fmt in args.format:
         plt.savefig(plots_dir / f"{out_stem}.{fmt}", bbox_inches="tight", dpi=300)
@@ -232,7 +237,7 @@ if args.versus == "num_patterns":
             "num_patterns",
             "time",
             "# $k$-mers of interest",
-            "CPU time (s)",
+            "Elapsed time (s)",
             f"plot_time_{stem}",
             xscale=2,
             yscale=10,
@@ -259,7 +264,7 @@ elif args.versus == "threads":
             "threads",
             "time",
             "# threads",
-            "CPU time (s)",
+            "Elapsed time (s)",
             f"plot_time_vs_t_{stem}",
             yscale=10,
         )
@@ -286,7 +291,7 @@ elif args.versus == "k":
             "k",
             "time",
             "$k$-mer size",
-            "CPU time (s)",
+            "Elapsed time (s)",
             f"plot_time_vs_k_{stem}",
             yscale=10,
         )
