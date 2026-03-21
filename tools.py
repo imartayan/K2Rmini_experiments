@@ -111,6 +111,17 @@ def sbwt_cmd(
     return [f"sbwt_filter -k {k} -t {t} -T {T} -p {patterns} {reads} -o /dev/null"]
 
 
+def sshash_cmd(
+    patterns: os.PathLike,
+    reads: os.PathLike,
+    **params,
+) -> str:
+    k = get_param("k", params, 31)
+    t = get_param("threshold", params, 0.8)
+    T = get_param("threads", params, 8)
+    return [f"sshash_filter -k {k} -t {t} -T {T} -p {patterns} {reads} -o /dev/null"]
+
+
 def grep_cmd(
     patterns: os.PathLike,
     reads: os.PathLike,
@@ -184,6 +195,7 @@ DEACON = Tool("Deacon", deacon_cmd)
 CLEANIFIER = Tool("Cleanifier", cleanifier_cmd)
 BTS = Tool("BTS", bts_cmd)
 SBWT = Tool("SBWT", sbwt_cmd)
+SSHASH = Tool("SSHash", sshash_cmd)
 GREP = Tool("Grep", grep_cmd)
 RIPGREP = Tool("Ripgrep", ripgrep_cmd)
 HYPERSCAN = Tool("Hyperscan", hyperscan_cmd)
@@ -200,6 +212,7 @@ TOOLS = [
     GREPQ,
     BTS,
     SBWT,
+    SSHASH,
     CLEANIFIER,
     DEACON,
     K2RMINI,

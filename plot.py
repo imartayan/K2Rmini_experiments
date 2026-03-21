@@ -26,6 +26,7 @@ PALETTE = dict(
             "#76B7B2",
             "#B07AA1",
             "#4B4E6D",
+            "#8BC34A",
             "#BAB0AC",
             "#FF9DA7",
             "#4E79A7",
