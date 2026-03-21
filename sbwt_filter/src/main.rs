@@ -108,7 +108,7 @@ fn main() -> io::Result<()> {
 
     eprintln!("Building SBWT of patterns...");
     let start = Instant::now();
-    let (sbwt, lcs) = index_reference(&args)?;
+    let (sbwt, lcs) = index_reference(&args);
     eprintln!(
         "Took {:.02} s, RAM: {:.03} GB",
         start.elapsed().as_secs_f64(),
@@ -129,7 +129,7 @@ fn main() -> io::Result<()> {
     Ok(())
 }
 
-fn index_reference(args: &Args) -> io::Result<(SbwtIndex<SubsetMatrix>, LcsArray)> {
+fn index_reference(args: &Args) -> (SbwtIndex<SubsetMatrix>, LcsArray) {
     let pattern_file = File::open(&args.patterns).expect("Cannot open patterns file");
     let threads = args.threads.unwrap_or_else(|| {
         thread::available_parallelism()
@@ -143,7 +143,7 @@ fn index_reference(args: &Args) -> io::Result<(SbwtIndex<SubsetMatrix>, LcsArray
         .algorithm(BitPackedKmerSortingMem::new().mem_gb(8))
         .run_from_fasta(pattern_file);
     let lcs = lcs.expect("SBWT LCS array was not constructed");
-    Ok((sbwt, lcs))
+    (sbwt, lcs)
 }
 
 fn process_query_streaming(
