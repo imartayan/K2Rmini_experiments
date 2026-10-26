@@ -9,10 +9,11 @@ import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from matplotlib.colors import to_hex
 
-from tools import TOOLS
+from tools import TOOLS, APPROX_TOOLS
 from tool import basename
 
 TOOL_NAMES = [tool.name for tool in TOOLS]
+APPROX_TOOL_NAMES = [tool.name for tool in APPROX_TOOLS]
 # https://github.com/ngregorich/plot_color_palettes/blob/main/README.md
 PALETTE = dict(
     zip(
@@ -28,6 +29,7 @@ PALETTE = dict(
             "#4B4E6D",
             "#BAB0AC",
             "#FF9DA7",
+            "#4E79A7",
             "#4E79A7",
         ],
     )
@@ -46,6 +48,7 @@ MARKERS = dict(
             "p",
             "v",
             "s",
+            "o",
             "o",
         ],
     )
@@ -192,7 +195,7 @@ def make_plot(
     new_handles.append(blank)
     new_labels.append("Exact tool")
     for h, l in zip(tool_handles, tool_labels):
-        if l != "Deacon":
+        if l not in APPROX_TOOL_NAMES:
             new_handles.append(h)
             new_labels.append(l)
 
@@ -201,7 +204,7 @@ def make_plot(
     new_handles.append(blank)
     new_labels.append("Approx tool")
     for h, l in zip(tool_handles, tool_labels):
-        if l == "Deacon":
+        if l in APPROX_TOOL_NAMES:
             new_handles.append(h)
             new_labels.append(l)
 

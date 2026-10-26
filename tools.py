@@ -30,6 +30,20 @@ def k2rmini_cmd(
     return [f"K2Rmini -k {k} -m {m} -t {t} -T {T} -p {patterns} {reads} -o /dev/null"]
 
 
+def k2rmini_approx_cmd(
+    patterns: os.PathLike,
+    reads: os.PathLike,
+    **params,
+) -> str:
+    k = get_param("k", params, 31)
+    m = get_param("m", params, 21)
+    t = get_param("threshold", params, 0.8)
+    T = get_param("threads", params, 8)
+    return [
+        f"K2Rmini -a -k {k} -m {m} -t {t} -T {T} -p {patterns} {reads} -o /dev/null"
+    ]
+
+
 def deacon_cmd(
     patterns: os.PathLike,
     reads: os.PathLike,
@@ -46,7 +60,7 @@ def deacon_cmd(
         r = threshold / w
         return [
             f"deacon index build -k {k} -w {w} -t {t} -q {patterns} -o {patterns_deacon}",
-            f"deacon filter -r {r} -t {t} -f -q {patterns_deacon} {reads} -o /dev/null",
+            f"deacon filter -r {r} -t {t} -q {patterns_deacon} {reads} -o /dev/null",
         ]
     else:
         a = threshold // w
@@ -180,6 +194,7 @@ def grepq_cmd(
 os.environ["PATH"] = "bin" + os.pathsep + os.environ["PATH"]
 
 K2RMINI = Tool("K2Rmini", k2rmini_cmd)
+K2RMINI_APPROX = Tool("K2Rmini-approx", k2rmini_approx_cmd)
 DEACON = Tool("Deacon", deacon_cmd)
 CLEANIFIER = Tool("Cleanifier", cleanifier_cmd)
 BTS = Tool("BTS", bts_cmd)
@@ -203,4 +218,7 @@ TOOLS = [
     CLEANIFIER,
     DEACON,
     K2RMINI,
+    K2RMINI_APPROX,
 ]
+
+APPROX_TOOLS = [DEACON, K2RMINI_APPROX]

@@ -1,7 +1,5 @@
 import argparse
-import itertools
 import pathlib
-import sys
 
 from concurrent.futures import ThreadPoolExecutor
 from os import cpu_count
